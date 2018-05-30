@@ -31,8 +31,10 @@ class NeuralNetwork:
 
         self.errors = []
         self.title = title
+        self.plt_title = None
         self.iteration_num = None
         self.epoch = None
+        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         plt.interactive(False)
 
     # Make a matrix (we could use NumPy to speed this up)
@@ -149,8 +151,7 @@ class NeuralNetwork:
             plt.ylabel("error")
             plt.title(self.get_plt_title())
             plt.ylim(0.0, max(self.errors) + 1.0)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            plt.savefig('fig/' + timestamp + '_' + self.title + '.pdf')
+            plt.savefig('fig/' + self.timestamp + '_' + self.title + '.pdf')
             plt.show()
         else:
             for error in self.errors:
