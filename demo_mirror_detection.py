@@ -107,7 +107,6 @@ def demo():
     n.print_error(is_graph=True)
     n.draw()
     # test it
-    n.test(pat)
 
 
 if __name__ == '__main__':
