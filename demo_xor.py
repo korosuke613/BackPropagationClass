@@ -1,4 +1,5 @@
 from neural_network import NeuralNetwork
+from activation import Sigmoid
 
 
 def demo():
@@ -11,9 +12,7 @@ def demo():
     ]
 
     # create a network with two input, two hidden, and one output nodes
-    n = NeuralNetwork(2, 2, 1, title='XOR')
-    # n.activation = tanh
-    # n.dactivation = dtanh
+    n = NeuralNetwork(2, 2, 1, activator=Sigmoid, title='XOR')
     # train it with some patterns
     n.train(pat, epoch=1000)
     n.print_error(is_graph=True)
