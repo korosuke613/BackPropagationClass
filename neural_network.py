@@ -1,12 +1,13 @@
-from activation import Sigmoid, Tanh
+from activation import Activator
 import random_tool
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from datetime import datetime
+from typing import Type
 
 
-class NeuralNetwork(Sigmoid, Tanh):
-    def __init__(self, ni, nh, no, title='none'):
+class NeuralNetwork:
+    def __init__(self, ni, nh, no, activator: Type[Activator], title='none'):
         # number of input, hidden, and output nodes
         self.ni = ni + 1  # +1 for bias node
         self.nh = nh + 1  # +1 for bias node
@@ -26,8 +27,7 @@ class NeuralNetwork(Sigmoid, Tanh):
         self.co = self.make_matrix(self.nh, self.no)
 
         # set activation
-        self.activation = self.sigmoid
-        self.dactivation = self.dsigmoid
+        self.activator = activator
 
         self.errors = []
         self.title = title
@@ -49,12 +49,9 @@ class NeuralNetwork(Sigmoid, Tanh):
             m.append(fill_matrix)
         return m
 
-    def update(self, inputs, activation=None):
+    def update(self, inputs):
         if len(inputs) != self.ni - 1:
             raise ValueError('wrong number of inputs')
-
-        if activation is None:
-            activation = self.activation
 
         # input activations
         for i in range(self.ni - 1):
@@ -65,14 +62,14 @@ class NeuralNetwork(Sigmoid, Tanh):
             total = 0.0
             for i in range(self.ni):
                 total = total + self.ai[i] * self.wi[i][j]
-            self.ah[j] = activation(total)
+            self.ah[j] = self.activator.activate(total)
 
         # output activations
         for k in range(self.no):
             total = 0.0
             for j in range(self.nh):
                 total = total + self.ah[j] * self.wo[j][k]
-            self.ao[k] = activation(total)
+            self.ao[k] = self.activator.activate(total)
 
         return self.ao[:]
 
@@ -92,8 +89,6 @@ class NeuralNetwork(Sigmoid, Tanh):
             print(self.wo[i])
 
     def train(self, patterns, epoch=1000,  mu=0.1, velocity=0.9):
-        # N: learning rate
-        # M: momentum factor
         self.epoch = epoch
         self.iteration_num = self.epoch * len(patterns)
         for i in tqdm(range(self.iteration_num)):
@@ -106,18 +101,15 @@ class NeuralNetwork(Sigmoid, Tanh):
             if i % len(patterns) == 0:
                 self.errors.append(error)
 
-    def back_propagate(self, targets, mu, velocity, dactivation=None):
+    def back_propagate(self, targets, mu, velocity):
         if len(targets) != self.no:
             raise ValueError('wrong number of target values')
-
-        if dactivation is None:
-            dactivation = self.dactivation
 
         # calculate error terms for output
         output_deltas = [0.0] * self.no
         for k in range(self.no):
             error = targets[k] - self.ao[k]
-            output_deltas[k] = dactivation(self.ao[k]) * error
+            output_deltas[k] = self.activator.differential(self.ao[k]) * error
 
         # calculate error terms for hidden
         hidden_deltas = [0.0] * self.nh
@@ -126,7 +118,7 @@ class NeuralNetwork(Sigmoid, Tanh):
             error = 0.0
             for k in range(self.no):
                 error = error + output_deltas[k] * self.wo[j][k]
-            hidden_deltas[j] = dactivation(self.ah[j]) * error
+            hidden_deltas[j] = self.activator.differential(self.ah[j]) * error
 
         # update output weights
         self.update_weight(self.nh, self.no, output_deltas, mu, velocity, self.ah, self.wo, self.co)
@@ -165,13 +157,8 @@ class NeuralNetwork(Sigmoid, Tanh):
                 print('error %-.5f' % error)
 
     def get_plt_title(self):
-        activation, dactivation = self.get_activation()
+        activation = self.activator.__name__
         return f'title:{self.title}, \n' \
                f'perceptron=[{self.ni-1}, {self.nh-1}, {self.no}], ' \
                f'epoch={self.epoch} iter={self.iteration_num}, \n'\
                f'activation={activation}'
-
-    def get_activation(self):
-        if self.activation is self.tanh:
-            return "tanh", 'dtanh'
-        return "sigmoid", 'dsigmoid'
