@@ -36,7 +36,7 @@ class NnXor(NeuralNetwork):
         plt.title(self.get_plt_title())
         draw_surface()
         draw_pattern()
-        plt.savefig(self.timestamp + '.draw.pdf')
+        plt.savefig('fig/' + self.timestamp + '.draw.pdf')
         plt.show()
 
 

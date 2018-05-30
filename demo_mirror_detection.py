@@ -24,7 +24,7 @@ class NnMirror(NeuralNetwork):
         draw_surface()
 
         plt.xticks([0, 16, 32, 48, 63], ["000000", "001000", "010000", "110000", "111111"])
-        plt.savefig(self.timestamp + '.draw.pdf')
+        plt.savefig('fig/' + self.timestamp + '.draw.pdf')
         plt.show()
 
 
