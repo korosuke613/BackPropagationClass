@@ -53,10 +53,10 @@ def demo():
     n = NnXor(2, 2, 1, pat, activator=Sigmoid, title='XOR')
     # train it with some patterns
     n.train(pat, epoch=1000)
+    n.test(pat)
     n.print_error(is_graph=True)
     n.draw()
     # test it
-    n.test(pat)
 
 
 if __name__ == '__main__':

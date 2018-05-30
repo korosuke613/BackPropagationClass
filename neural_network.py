@@ -28,7 +28,7 @@ class NeuralNetwork:
 
         # set activation
         self.activator = activator
-
+        self.accuracy = 0.0
         self.errors = []
         self.title = title
         self.plt_title = None
@@ -76,9 +76,15 @@ class NeuralNetwork:
         return self.ao[:]
 
     def test(self, patterns):
+        correct = 0
         for p in patterns:
-            print(p[0], '->', self.update(p[0]))
+            result = self.update(p[0])
+            print(p[0], '->', result)
+            if abs(result[0] - p[1][0]) < 0.05:
+                correct += 1
         self.print_weights()
+        self.accuracy = correct / len(patterns)
+        print("accuracy: {:.2%}".format(self.accuracy))
 
     def print_weights(self):
         print()
@@ -161,5 +167,5 @@ class NeuralNetwork:
         activation = self.activator.__name__
         return f'title:{self.title}, \n' \
                f'perceptron=[{self.ni-1}, {self.nh-1}, {self.no}], ' \
-               f'epoch={self.epoch} iter={self.iteration_num}, \n'\
-               f'activation={activation}'
+               f'epoch={self.epoch}, iter={self.iteration_num}, \n'\
+               f'activation={activation}, accuracy={self.accuracy*100}%'

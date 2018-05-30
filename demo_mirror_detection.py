@@ -103,6 +103,7 @@ def demo():
     # n.activation = tanh
     # n.dactivation = dtanh
     n.train(pat, epoch=60)
+    n.test(pat)
     n.print_error(is_graph=True)
     n.draw()
     # test it
