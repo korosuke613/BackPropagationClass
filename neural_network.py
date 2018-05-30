@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from datetime import datetime
 from typing import Type
+import time
 
 
 class NeuralNetwork:
@@ -35,6 +36,7 @@ class NeuralNetwork:
         self.iteration_num = None
         self.epoch = None
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.time_elapsed = 0
         plt.interactive(False)
 
     # Make a matrix (we could use NumPy to speed this up)
@@ -99,6 +101,7 @@ class NeuralNetwork:
     def train(self, patterns, epoch=1000,  mu=0.1, velocity=0.9):
         self.epoch = epoch
         self.iteration_num = self.epoch * len(patterns)
+        time_start = time.time()
         for i in tqdm(range(self.iteration_num)):
             error = 0.0
             for p in patterns:
@@ -108,6 +111,7 @@ class NeuralNetwork:
                 error = error + self.back_propagate(targets, mu, velocity)
             if i % len(patterns) == 0:
                 self.errors.append(error)
+        self.time_elapsed = time.time() - time_start
 
     def back_propagate(self, targets, mu, velocity):
         if len(targets) != self.no:
@@ -168,4 +172,4 @@ class NeuralNetwork:
         return f'title:{self.title}, \n' \
                f'perceptron=[{self.ni-1}, {self.nh-1}, {self.no}], ' \
                f'epoch={self.epoch}, iter={self.iteration_num}, \n'\
-               f'activation={activation}, accuracy={self.accuracy*100}%'
+               f'activation={activation}, accuracy={self.accuracy*100}%, time={round(self.time_elapsed, 2)}s'
