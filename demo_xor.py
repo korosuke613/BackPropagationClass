@@ -26,14 +26,12 @@ class NnXor(NeuralNetwork):
             result = []
             for p in tqdm(patterns):
                 result.append(self.update(p))
-            draw_p = [p for i, p in enumerate(patterns) if result[i][0] <= 0.4]
-            draw_x = [x[0] for x in draw_p]
-            draw_y = [y[1] for y in draw_p]
-            plt.scatter(draw_x, draw_y, marker='.', c='coral', s=0.1)
-            draw_p = [p for i, p in enumerate(patterns) if result[i][0] >= 0.6]
-            draw_x = [x[0] for x in draw_p]
-            draw_y = [y[1] for y in draw_p]
-            plt.scatter(draw_x, draw_y, marker='.', c='aqua', s=0.1)
+            draw_p = [(p, result[i][0]) for i, p in enumerate(patterns)]
+            draw_x = [x[0][0] for x in draw_p]
+            draw_y = [y[0][1] for y in draw_p]
+            draw_ans = [a[1] for a in draw_p]
+            plt.scatter(draw_x, draw_y, c=draw_ans, cmap=plt.cm.Spectral, s=15)
+            plt.colorbar()
 
         plt.title(self.get_plt_title())
         draw_surface()
