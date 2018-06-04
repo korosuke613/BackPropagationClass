@@ -102,7 +102,7 @@ def demo():
     # train it with some patterns
     # n.activation = tanh
     # n.dactivation = dtanh
-    n.train(pat, epoch=60)
+    n.train(pat, epoch=30)
     n.test(pat)
     n.print_error(is_graph=True)
     n.draw()

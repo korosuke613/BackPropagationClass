@@ -1,4 +1,4 @@
-from activation import Activator
+from activation import Activator, Sigmoid
 import random_tool
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -8,7 +8,7 @@ import time
 
 
 class NeuralNetwork:
-    def __init__(self, ni, nh, no, activator: Type[Activator], title='none'):
+    def __init__(self, ni, nh, no, activator: Type[Activator]=Sigmoid, title='none'):
         # number of input, hidden, and output nodes
         self.ni = ni + 1  # +1 for bias node
         self.nh = nh + 1  # +1 for bias node
