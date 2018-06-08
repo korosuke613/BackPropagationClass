@@ -5,8 +5,8 @@ import operator
 
 
 class NnSinKnn(NnSin):
-    def __init__(self, pattern, k=3, title='none'):
-        super().__init__(2, 16, 1, pattern=pattern, title=title)
+    def __init__(self, pattern, k=3, title='none', fineness=40):
+        super().__init__(2, 16, 1, pattern=pattern, title=title, fineness=fineness)
         self.pattern = pattern
         self.k = k
 
@@ -26,6 +26,22 @@ class NnSinKnn(NnSin):
             return [1]
 
         return [0.5]
+
+    def test(self, patterns):
+        correct = 0
+        for p in patterns:
+            result = self.update(p[0])
+            print(p[0], '->', result)
+            if abs(result[0] - p[1][0]) < 0.05:
+                correct += 1
+        self.accuracy = correct / len(patterns)
+        print("accuracy: {:.2%}".format(self.accuracy))
+
+    def get_plt_title(self):
+        activation = self.activator.__name__
+        return f'title:{self.title}, \n' \
+               f'perceptron=[{self.ni-1}, {self.nh-1}, {self.no}], k={self.k}\n' \
+               f'activation={activation}, accuracy={self.accuracy*100}%'
 
 
 def demo_sin_curve_knn():
@@ -53,9 +69,10 @@ def demo_sin_curve_knn():
 
     pat = generate_leaning_data()
 
-    n = NnSinKnn(pat, k=3, title='sin_curve_with_kNN')
+    n = NnSinKnn(pat, k=3, title='sin_curve_with_kNN', fineness=25)
     # n.activation = tanh
     # n.dactivation = dtanh
+    n.test(pat)
     n.draw()
 
 

@@ -7,15 +7,15 @@ import random_tool
 
 
 class NnSin(NeuralNetwork):
-    def __init__(self, ni, nh, no, pattern, activator=Sigmoid, title='none'):
+    def __init__(self, ni, nh, no, pattern, activator=Sigmoid, title='none', fineness=40):
         super().__init__(ni, nh, no, activator, title)
         self.pattern = pattern
+        self.fineness = fineness
 
-    @staticmethod
-    def generate_all_patterns():
-        x_set_ = [x for x in range(-300, 300)]
-        y_set_ = [y for y in range(-75, 75)]
-        learn_data = [[x / 50, y / 50] for x in x_set_ for y in y_set_]
+    def generate_all_patterns(self):
+        x_set_ = [x for x in range(-6 * self.fineness, 6 * self.fineness)]
+        y_set_ = [y for y in range(int(-1.5 * self.fineness), int(1.5 * self.fineness))]
+        learn_data = [[x / self.fineness, y / self.fineness] for x in x_set_ for y in y_set_]
         return learn_data
 
     def draw(self):
