@@ -39,7 +39,7 @@ class NnSin(NeuralNetwork):
             plt.scatter(x_set, y_set, c=i[1])
         plt.title(self.get_plt_title())
         self.draw_sin()
-        plt.savefig('fig/' + self.timestamp + '.draw.pdf')
+        plt.savefig('fig/' + self.timestamp + '_' + self.title + '.draw.png')
         plt.show()
 
     @staticmethod

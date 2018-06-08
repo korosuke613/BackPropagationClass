@@ -38,6 +38,7 @@ class NeuralNetwork:
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.time_elapsed = 0
         plt.interactive(False)
+        plt.subplots_adjust(top=0.8)
 
     # Make a matrix (we could use NumPy to speed this up)
     @staticmethod
