@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from demo_sin_curve import NnSin
 import math
 import random_tool
@@ -9,11 +11,34 @@ from datetime import datetime
 class NnSinKnn(NnSin):
     def __init__(self, pattern, k=3, title='none', fineness=40):
         super().__init__(2, 16, 1, pattern=pattern, title=title, fineness=fineness)
+        self.all_pattern = [[p, 0] for p in self.generate_all_patterns()]
         self.pattern = pattern
         self.k = k
         self.bias = None
         self.variance = None
         self.error = None
+
+    def generate_leaning_data(self):
+        learn_data = []
+        up_num = down_num = 0
+        while True:
+            x = random_tool.uniform(-6.0, 6.0)
+            y = random_tool.uniform(-1.5, 1.5)
+            sin_y = math.sin(math.pi / 2 * x)
+            up_correct = 0
+            if y >= sin_y:
+                up_correct = 1
+
+            if up_correct == 1 and up_num < 50:
+                up_num += 1
+                learn_data.append([[x, y], [up_correct]])
+            elif up_correct == 0 and down_num < 50:
+                down_num += 1
+                learn_data.append([[x, y], [up_correct]])
+
+            if up_num >= 50 and down_num >= 50:
+                break
+        self.pattern = learn_data
 
     def update(self, inputs):
         euclid = []
@@ -26,11 +51,34 @@ class NnSinKnn(NnSin):
             c = self.pattern[euclid[i][0]][1]
             correct[c[0]] += 1
         if correct[0] > correct[1]:
-            return [0]
+            return 0
         elif correct[0] < correct[1]:
-            return [1]
+            return 1
 
-        return [0.5]
+        return 0.5
+
+    def run(self, num=100):
+        def draw_surface(pattern):
+            draw_x = [x[0][0] for x in pattern]
+            draw_y = [y[0][1] for y in pattern]
+            draw_ans = [a[1] for a in pattern]
+            plt.scatter(draw_x, draw_y, c=draw_ans, cmap=plt.cm.Spectral, s=15)
+            plt.colorbar()
+
+        for i in tqdm(range(num)):
+            self.generate_leaning_data()
+            for p in self.all_pattern:
+                p[1] += self.update(p[0])
+        for p in self.all_pattern:
+            p[1] /= num
+        draw_surface(self.all_pattern)
+        self.draw_sin()
+        plt.title(self.get_plt_title())
+        plt.savefig('fig/' + self.timestamp + '_' + self.title + '.draw.png')
+        plt.show()
+
+    def get_point(self, p):
+        pass
 
     def test(self, patterns):
         def calc_bias(di):
@@ -58,8 +106,7 @@ class NnSinKnn(NnSin):
         diffs = []
         fx = []
         for p in patterns:
-            result = self.update(p[0])
-            #print(p[0], '->', result)
+            result = self.get_point(p[0])
             diff = abs(result[0] - p[1][0])
             diffs.append(p[0][1] - result[0])
             fx.append(result[0])
@@ -140,5 +187,10 @@ def create_bve():
 
 
 if __name__ == '__main__':
-    create_bve()
+    #create_bve()
     #demo_sin_curve_knn(4)
+    n = NnSinKnn(None, k=10, title='sin_curve_with_kNN', fineness=25)
+    n.run(100)
+    n.generate_leaning_data()
+    n.test(n.pattern)
+
