@@ -1,4 +1,4 @@
-from neural_network import NeuralNetwork
+from neural_network_cy import NeuralNetwork
 from activation import Sigmoid
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -96,7 +96,7 @@ def demo_sin_curve():
     n = NnSin(2, 16, 1, pat, activator=Sigmoid, title='sin_curve')
     # n.activation = tanh
     # n.dactivation = dtanh
-    n.train(pat, epoch=100)
+    n.train(pat, epoch=50)
     n.test(pat)
     n.print_error(is_graph=True)
     n.draw()

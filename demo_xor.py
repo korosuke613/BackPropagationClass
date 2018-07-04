@@ -1,4 +1,4 @@
-from neural_network import NeuralNetwork
+from neural_network_cy import NeuralNetwork
 from activation import Sigmoid
 import matplotlib.pyplot as plt
 from tqdm import tqdm

@@ -5,10 +5,17 @@ from tqdm import tqdm
 from datetime import datetime
 from typing import Type
 import time
+from libcpp cimport bool
 
 
-class NeuralNetwork:
-    def __init__(self, ni, nh, no, activator: Type[Activator]=Sigmoid, title='none'):
+cdef class NeuralNetwork:
+    cdef list ai, ah, ao, wi, wo, ci, co, errors
+    cdef int ni, nh, no, iteration_num, epoch, time_elapsed
+    cdef double accuracy
+    cdef object activator
+    cdef str plt_title
+
+    def __init__(self, int ni, int nh, int no, object activator: Type[Activator]=Sigmoid, str title='none'):
         # number of input, hidden, and output nodes
         self.ni = ni + 1  # +1 for bias node
         self.nh = nh + 1  # +1 for bias node
@@ -20,30 +27,30 @@ class NeuralNetwork:
         self.ao = [1.0] * self.no
 
         # create weights
-        self.wi = self.make_matrix(self.ni, self.nh, is_random=True)
-        self.wo = self.make_matrix(self.nh, self.no, is_random=True)
+        self.wi = self.make_matrix(self.ni, self.nh, 0.0, is_random=True)
+        self.wo = self.make_matrix(self.nh, self.no, 0.0, is_random=True)
 
         # create last change in weights for momentum
-        self.ci = self.make_matrix(self.ni, self.nh)
-        self.co = self.make_matrix(self.nh, self.no)
+        self.ci = self.make_matrix(self.ni, self.nh, 0.0, is_random=True)
+        self.co = self.make_matrix(self.nh, self.no, 0.0, is_random=True)
 
         # set activation
         self.activator = activator
         self.accuracy = 0.0
         self.errors = []
         self.title = title
-        self.plt_title = None
-        self.iteration_num = None
-        self.epoch = None
+        self.plt_title = ""
+        self.iteration_num = -1
+        self.epoch = -1
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.time_elapsed = 0
         plt.interactive(False)
         plt.subplots_adjust(top=0.8)
 
     # Make a matrix (we could use NumPy to speed this up)
-    @staticmethod
-    def make_matrix(col, row, fill=0.0, is_random=False):
-        m = []
+    cdef list make_matrix(self, int col, int row, double fill, bool is_random):
+        cdef list fill_matrix, m = []
+        cdef int i, j
         for i in range(col):
             if is_random is True:
                 fill_matrix = []
@@ -54,7 +61,10 @@ class NeuralNetwork:
             m.append(fill_matrix)
         return m
 
-    def update(self, inputs):
+    cpdef list update(self, list inputs):
+        cdef int i, j, k
+        cdef double total
+
         if len(inputs) != self.ni - 1:
             raise ValueError('wrong number of inputs')
 
@@ -114,7 +124,11 @@ class NeuralNetwork:
                 self.errors.append(error)
         self.time_elapsed = time.time() - time_start
 
-    def back_propagate(self, targets, mu, velocity):
+    cdef double back_propagate(self, list targets, double mu, double velocity):
+        cdef list output_deltas, hidden_deltas
+        cdef int j, k
+        cdef double error
+
         if len(targets) != self.no:
             raise ValueError('wrong number of target values')
 
@@ -145,9 +159,11 @@ class NeuralNetwork:
             error = error + 0.5 * (targets[k] - self.ao[k]) ** 2
         return error
 
-    @staticmethod
-    def update_weight(first, second, deltas, mu, velocity, a_list, w_list, c_list):
+    cdef update_weight(self, int first, int second, list deltas, double mu, double velocity,
+                       list a_list, list w_list, list c_list):
         # update output weights
+        cdef int i, j
+        cdef double change
         for i in range(first):
             for j in range(second):
                 change = deltas[j] * a_list[i]
